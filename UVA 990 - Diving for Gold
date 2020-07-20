@@ -1,0 +1,186 @@
+#include<iostream>
+#include <bits/stdc++.h>
+using namespace std;
+typedef pair<int, int> pii;
+typedef pair<int, pii> piii;
+typedef pair<double, pii> pdii;
+typedef vector<int> vi;
+typedef vector<pii> vii;
+typedef long long ll;
+typedef set<int> set1 ;
+#define loop(i,n)          for(int i = 0; i < n; ++i)
+#define lp(x, s, e)      for(int x = (s); x < (e); x++)
+#define lpe(x, s, e)     for(int x = (s); x <= (e); x++)
+#define MP make_pair
+#define PB push_back
+#define sizeofarr(a) (sizeof(a)/sizeof(a[0]))
+#define len(s)   (int)s.length()
+#define sz(v)    (int)v.size()
+#define all(a)   a.begin(),a.end()
+#define clr(x, val)    memset((x), (val), sizeof(x))
+#define ln '\n'
+#define INF 1e8
+typedef unsigned long long ull;
+typedef long long ll;
+#define MAXNODES (100000)+9
+vector<vi> edges (MAXNODES);
+vector<set1> edges2 (MAXNODES);
+vector<int> visited (MAXNODES , -1);
+vi dfsvec ;
+vi leafs;
+int color [MAXNODES] ;
+vi numbers (MAXNODES);
+vi opr (MAXNODES , 0) ;
+bool visited2 [50+1];
+void left_rotate_by_one(int arr[], int n)
+{
+/* Shift operation to the left */
+    int temp = arr[0], i;
+    for (i = 0; i < n - 1; i++)
+        arr[i] = arr[i + 1];
+    arr[i] = temp;
+}
+void array_left_rotate(int arr[], int no_of_rotations, int n)
+{
+    for (int i = 0; i < no_of_rotations; i++)
+        left_rotate_by_one(arr, n);   // Function is called for no_of_rotations times
+}
+int gcd(int a, int b){
+    if (a == 0)
+        return b;
+    return gcd(b % a, a);
+}
+// Function to return LCM of two numbers
+int lcm(int a, int b)
+{
+    return (a*b)/gcd(a, b);
+}
+void addedges (int v , int u  ){
+    edges2[u].insert(v);
+    edges2[v].insert(u);
+} ;
+int dfs(int node, int parent , int a[] , int m , int accm ){
+    accm = a[node-1]==1? ++accm : 0 ;
+    if (accm>m)
+        return 0 ;
+    int result = ((int)edges[node].size() == 1 && node != 1) ;
+    for (int adj : edges[node]) {
+        if (adj == parent)
+            continue;
+        result += dfs(adj, node, a, m, accm);
+    }
+    return result ;
+}
+void leaf (vector<vi> edges , int n ){
+    int size ;
+    int i = 0 ;
+    for (vi x : edges ){
+        if (i>=n+1)
+            break ;
+        if (x.size() == 1 && i>1)
+            leafs.PB(i);
+        i++;
+    }
+}
+int height(int node , int parent ){
+    int h = 0 ;
+    for(int adj : edges[node]){
+        h = max(h,1+height(adj, parent));
+    }
+    return h ;
+}
+string recurse (int n , string s , char c) {
+    string res = "";
+    if (n==0)
+        return s+(--c) ;
+    else {
+        for (int i = 0; i < n / 2; i++) {
+            res += c;
+        }
+        c++;
+        n=n/2 ;
+        s+= res+recurse(n , s , c);
+    }
+    return s ;
+}
+//Brute Force exponential complexity
+int bruteforce (int n ){ // possible solutions must be represented as bits 000 , 001 , 010,011 ...
+for (int mask = 0 ; mask <(1<<n) ; mask++){
+    loop(i,n){ // to know the positions of the items i should take , bitwise and with (1<<i)
+        if(mask & (1<<i))
+        {
+// i will take the position i
+        }
+    }
+}
+}
+int depth [30+2];
+int value [30+2];
+int taken [30+2];
+long dp[35][1005];
+int t , w , n;
+int mod(int a, int b) {
+    return (((a % b) + b) % b) ;
+}
+int solve (int i , int sum) {
+    if (i==n)
+        return 0;
+    if(dp[i][sum]!=-1 ) return dp[i][sum];
+    if (sum<taken[i])
+        return dp[i][sum]= solve(i+1,sum);
+    return dp[i][sum]= max(solve(i+1,sum),value[i]+solve(i+1,sum-taken[i])) ;
+}
+namespace patch
+{
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+}
+string s ;int count1 ;
+vector <pair<int,int>> v;
+void print(int i, int sum) {
+    if (i == n)
+        return;
+    int ans = dp[i][sum];
+    if (ans == dp[i + 1][sum]) {
+        print(i + 1, sum);
+    } else {
+        //count1++;
+        //s+=patch::to_string(depth[i])+" "+patch::to_string(value[i])+ln   ;
+        v.push_back({depth[i], value[i]});
+        print(i + 1, sum - taken[i]);
+    }
+}
+int main () {
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    //  freopen ("input.txt","r",stdin);
+    // freopen ("output.txt","w",stdout);
+    ;
+    bool first = true;
+    while (cin >> t >> w >> n) {
+        if (!first) {
+            cout << endl;
+        }
+        first = false;
+        loop(i, n) {
+            cin >> depth[i] >> value[i];
+            taken[i] = 3 * w * depth[i];
+        }
+        loop(i, n) loop(j, t + 1) dp[i][j] = -1;
+        v.clear();
+        int ans = solve(0, t);
+        print(0, t);
+        string x;
+        //cout << ans << ln << count1 << ln << s;
+        cout << ans << endl;
+        cout << v.size() << endl;
+        for (int i = 0; i < v.size(); i++) {
+            cout << v[i].first << " " << v[i].second << endl;
+        }
+    }
+}
